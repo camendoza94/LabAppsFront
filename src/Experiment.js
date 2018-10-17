@@ -7,7 +7,7 @@ class Experiment extends Component {
         this.state = {
             current_type: 'main',
             current_test: '',
-            current_phase: 1
+            current_phase: 0
         }
     }
 

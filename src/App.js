@@ -23,9 +23,26 @@ class App extends Component {
                     name: "Instrucciones",
                     value: "Instrucciones aquí"
                 }],
-                test: [
+                tests: [
                     {
                         name: "Test 1",
+                        initial: {
+                            name: "A",
+                        },
+                        possibilities: [
+                            {
+                                name: "B",
+                            },
+                            {
+                                name: "C",
+                            }
+                        ],
+                        answer: {
+                            name: "A",
+                        }
+                    },
+                    {
+                        name: "Test 2",
                         initial: {
                             name: "A",
                         },
