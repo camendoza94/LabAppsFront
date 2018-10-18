@@ -5,6 +5,8 @@ class Test extends Component {
         super(props);
         this.state = {
             current_type: 'initial',
+            selection: -1,
+            tries: 1
         }
     }
 
@@ -19,9 +21,12 @@ class Test extends Component {
         })
     }
 
-    select() {
-        //TODO select
-        this.playSound();
+    select(id) {
+        this.setState({
+            selection: id
+        });
+        if (this.props.data.possibilities.filter((i) => i === id).type !== "image")
+            this.playSound();
     }
 
     playSound() {
@@ -32,8 +37,27 @@ class Test extends Component {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    nextTest(){
+    nextTest() {
         this.props.nextTest();
+    }
+
+    finishTest() {
+        if (this.state.selection === this.props.data.answer.id) {
+            this.nextTest();
+        } else {
+            if (this.props.data.isRepeatable && this.state.tries < this.props.data.tries)
+                this.setState({
+                    current_type: "repeating"
+                })
+        }
+    }
+
+    repeatTest() {
+        this.setState({
+            tries: this.state.tries + 1,
+            current_type: 'initial'
+        });
+        this.goToSelection();
     }
 
     render() {
@@ -47,10 +71,25 @@ class Test extends Component {
                 {this.state.current_type === "selection" ?
                     <div className="container">
                         {this.props.data.possibilities.map((possibility) => {
-                            return <h2 onClick={this.select.bind(this)} key={possibility.name}>{possibility.name}</h2>
+                            return possibility.type === "sound" ?
+                                <audio key={possibility.id} onClick={this.select.bind(this, possibility.id)} controls>
+                                    <source src={process.env.PUBLIC_URL + "/" + possibility.soundPath}
+                                            type="audio/mpeg"/>
+                                    Your browser does not support the audio element. </audio> :
+                                <img key={possibility.id} onClick={this.select.bind(this, possibility.id)}
+                                     src={possibility.imagePath}
+                                     alt={possibility.name} className="img-thumbnail"/>
                         })}
                         <button type="submit" className="btn btn-primary"
-                                onClick={this.nextTest.bind(this)}>Siguiente
+                                onClick={this.finishTest.bind(this)}>Siguiente
+                        </button>
+                    </div> : ''
+                }
+                {this.state.current_type === "repeating" ?
+                    <div className="container">
+                        <h2>Fallaste la prueba, vuelve a intentarlo</h2>
+                        <button type="submit" className="btn btn-primary"
+                                onClick={this.repeatTest.bind(this)}>Siguiente
                         </button>
                     </div> : ''
                 }

@@ -26,19 +26,26 @@ class App extends Component {
                 tests: [
                     {
                         name: "Test 1",
+                        isRepeatable: true,
                         initial: {
                             name: "A",
                         },
                         possibilities: [
                             {
+                                id: 2,
                                 name: "B",
+                                type: "image",
+                                imagePath: "https://via.placeholder.com/350x150"
                             },
                             {
+                                id: 3,
                                 name: "C",
+                                type: "image",
+                                imagePath: "https://via.placeholder.com/350x150"
                             }
                         ],
                         answer: {
-                            name: "A",
+                            id: 3
                         }
                     },
                     {
@@ -49,9 +56,13 @@ class App extends Component {
                         possibilities: [
                             {
                                 name: "B",
+                                type: "sound",
+                                soundPath: "horse.mp3"
                             },
                             {
                                 name: "C",
+                                type: "sound",
+                                soundPath: "horse.mp3"
                             }
                         ],
                         answer: {
