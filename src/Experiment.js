@@ -30,7 +30,7 @@ class Experiment extends Component {
                                 <label htmlFor="group" className="col-sm-2 col-form-label">Grupo</label>
                                 <div className="col-sm-10">
                                     <select className="form-control form-control-lg">
-                                        {this.props.data.groups.map((group) => {
+                                        {this.props.data.grupos.map((group) => {
                                             return <option key={group.name}>{group.name}</option>
                                         })}
                                     </select>

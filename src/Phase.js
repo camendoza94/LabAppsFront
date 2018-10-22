@@ -27,9 +27,11 @@ class Phase extends Component {
             <div>
                 {this.state.current_type === "prephase" ?
                     <div className="container">
-                        {this.props.data.attributes.map((attribute) => {
-                            return <h2 key={attribute.name}>{attribute.value}</h2>
-                        })}
+                        <h2>{this.props.data.instructions}</h2>
+                        <audio controls>
+                            <source src={process.env.PUBLIC_URL + "/" + this.props.data.instructionsSoundPath}
+                                    type="audio/mpeg"/>
+                            Your browser does not support the audio element. </audio> :
                         <button type="submit" className="btn btn-primary"
                                 onClick={this.start.bind(this)}>Siguiente
                         </button>

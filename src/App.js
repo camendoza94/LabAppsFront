@@ -1,8 +1,25 @@
 import React, {Component} from 'react';
 import Experiment from './Experiment'
 import './App.css';
+import axios from 'axios';
 
 class App extends Component {
+
+    constructor(props){
+        super(props);
+        this.state = {
+            data: {}
+        }
+    }
+
+    componentDidMount() {
+        axios.get('http://localhost:8090/api/catalogo/experiment')
+            .then(function (response) {
+                this.setState({
+                    data: response.data
+                })
+            })
+    }
 
     data = {
         name: "Experimento 1",
@@ -82,7 +99,7 @@ class App extends Component {
     render() {
         return (
             <div className="App">
-                <Experiment data={this.data}/>
+                <Experiment data={this.state.data}/>
             </div>
         );
     }

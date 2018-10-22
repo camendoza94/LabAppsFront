@@ -25,12 +25,6 @@ class Test extends Component {
         this.setState({
             selection: id
         });
-        if (this.props.data.possibilities.filter((i) => i === id).type !== "image")
-            this.playSound();
-    }
-
-    playSound() {
-        //TODO play sound
     }
 
     sleep(ms) {
@@ -42,7 +36,7 @@ class Test extends Component {
     }
 
     finishTest() {
-        if (this.state.selection === this.props.data.answer.id) {
+        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer).id) {
             this.nextTest();
         } else {
             if (this.props.data.isRepeatable && this.state.tries < this.props.data.tries)
@@ -60,24 +54,41 @@ class Test extends Component {
         this.goToSelection();
     }
 
+    getInitial() {
+        return this.props.data.possibilities.filter((p) => p.isInitial);
+    }
+
     render() {
         return (
             <div>
                 {this.state.current_type === "initial" ?
                     <div className="container">
-                        <h2>{this.props.data.initial.name}</h2>
+                        {this.getInitial().type === "SOUND" ?
+                            <div>
+                                <audio key={this.getInitial().idElement} controls>
+                                    <source src={process.env.PUBLIC_URL + "/" + this.getInitial().pathSound}
+                                            type="audio/mpeg"/>
+                                    Your browser does not support the audio element.
+                                </audio>
+                                :
+                                <img key={this.getInitial().idElement}
+                                     src={this.getInitial().pathImage}
+                                     alt={this.getInitial().name} className="img-thumbnail"/>
+                            </div> : ''
+                        }
                     </div> : ''
                 }
                 {this.state.current_type === "selection" ?
                     <div className="container">
-                        {this.props.data.possibilities.map((possibility) => {
-                            return possibility.type === "sound" ?
-                                <audio key={possibility.id} onClick={this.select.bind(this, possibility.id)} controls>
-                                    <source src={process.env.PUBLIC_URL + "/" + possibility.soundPath}
+                        {this.props.data.possibilities.filter(p => !p.isInitial).map((possibility) => {
+                            return possibility.type === "SOUND" ?
+                                <audio key={possibility.idElement} onClick={this.select.bind(this, possibility.idElement)}
+                                       controls>
+                                    <source src={process.env.PUBLIC_URL + "/" + possibility.pathSound}
                                             type="audio/mpeg"/>
                                     Your browser does not support the audio element. </audio> :
-                                <img key={possibility.id} onClick={this.select.bind(this, possibility.id)}
-                                     src={possibility.imagePath}
+                                <img key={possibility.idElement} onClick={this.select.bind(this, possibility.idElement)}
+                                     src={possibility.pathImage}
                                      alt={possibility.name} className="img-thumbnail"/>
                         })}
                         <button type="submit" className="btn btn-primary"
@@ -94,7 +105,6 @@ class Test extends Component {
                     </div> : ''
                 }
             </div>
-
         );
     }
 }
