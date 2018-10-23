@@ -7,7 +7,8 @@ class Test extends Component {
             current_type: 'initial',
             selection: -1,
             tries: 1
-        }
+        };
+        this.getInitial = this.getInitial.bind(this);
     }
 
     componentDidMount() {
@@ -36,7 +37,7 @@ class Test extends Component {
     }
 
     finishTest() {
-        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer).id) {
+        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer)[0].id) {
             this.nextTest();
         } else {
             if (this.props.data.isRepeatable && this.state.tries < this.props.data.tries)
@@ -55,7 +56,7 @@ class Test extends Component {
     }
 
     getInitial() {
-        return this.props.data.possibilities.filter((p) => p.isInitial);
+        return this.props.data.possibilities.filter((p) => p.isInitial)[0];
     }
 
     render() {
@@ -64,17 +65,15 @@ class Test extends Component {
                 {this.state.current_type === "initial" ?
                     <div className="container">
                         {this.getInitial().type === "SOUND" ?
-                            <div>
-                                <audio key={this.getInitial().idElement} controls>
-                                    <source src={process.env.PUBLIC_URL + "/" + this.getInitial().pathSound}
-                                            type="audio/mpeg"/>
-                                    Your browser does not support the audio element.
-                                </audio>
-                                :
-                                <img key={this.getInitial().idElement}
-                                     src={this.getInitial().pathImage}
-                                     alt={this.getInitial().name} className="img-thumbnail"/>
-                            </div> : ''
+                            <audio key={this.getInitial().idElement} controls>
+                                <source src={process.env.PUBLIC_URL + "/" + this.getInitial().pathSound}
+                                        type="audio/mpeg"/>
+                                Your browser does not support the audio element.
+                            </audio>
+                            :
+                            <img key={this.getInitial().idElement}
+                                 src={this.getInitial().pathImage}
+                                 alt={this.getInitial().name} className="img-thumbnail"/>
                         }
                     </div> : ''
                 }
@@ -82,7 +81,8 @@ class Test extends Component {
                     <div className="container">
                         {this.props.data.possibilities.filter(p => !p.isInitial).map((possibility) => {
                             return possibility.type === "SOUND" ?
-                                <audio key={possibility.idElement} onClick={this.select.bind(this, possibility.idElement)}
+                                <audio key={possibility.idElement}
+                                       onClick={this.select.bind(this, possibility.idElement)}
                                        controls>
                                     <source src={process.env.PUBLIC_URL + "/" + possibility.pathSound}
                                             type="audio/mpeg"/>
