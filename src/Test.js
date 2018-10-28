@@ -4,28 +4,22 @@ class Test extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            current_type: 'initial',
+            currentType: 'initial',
             selection: -1,
-            tries: 1
         };
-        this.getInitial = this.getInitial.bind(this);
     }
 
-    componentDidMount() {
-        this.goToSelection();
-    }
-
-    async goToSelection() {
-        await this.sleep(5000);
+    goToSelection() {
         this.setState({
-            current_type: 'selection'
+            currentType: 'selection'
         })
     }
 
     select(id) {
-        this.setState({
-            selection: id
-        });
+        if (this.state.currentType !== "finishing")
+            this.setState({
+                selection: id
+            });
     }
 
     sleep(ms) {
@@ -36,71 +30,76 @@ class Test extends Component {
         this.props.nextTest();
     }
 
-    finishTest() {
-        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer)[0].id) {
-            this.nextTest();
-        } else {
-            if (this.props.data.isRepeatable && this.state.tries < this.props.data.tries)
-                this.setState({
-                    current_type: "repeating"
-                })
-        }
+    async finishTest() {
+        //TODO Save selection
+        if (this.state.selection === -1)
+            this.refs.Modal.modal('show');
+        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer)[0].id)
+            this.playCorrectSound();
+        else
+            this.playIncorrectSound();
+        await this.sleep(1200);
+        this.nextTest();
     }
 
-    repeatTest() {
-        this.setState({
-            tries: this.state.tries + 1,
-            current_type: 'initial'
-        });
-        this.goToSelection();
+    playCorrectSound() {
+        this.refs.CorrectAudio.play();
     }
 
-    getInitial() {
-        return this.props.data.possibilities.filter((p) => p.isInitial)[0];
+    playIncorrectSound() {
+        this.refs.IncorrectAudio.play();
     }
 
     render() {
         return (
             <div>
-                {this.state.current_type === "initial" ?
+                {this.state.currentType === "initial" ?
                     <div className="container">
-                        {this.getInitial().type === "SOUND" ?
-                            <audio key={this.getInitial().idElement} controls>
-                                <source src={process.env.PUBLIC_URL + "/" + this.getInitial().pathSound}
+                        {this.props.data.initial.type === "SOUND" ?
+                            <audio key={this.props.data.initial.id} controls>
+                                <source src={process.env.PUBLIC_URL + "/" + this.props.data.initial.path}
                                         type="audio/mpeg"/>
                                 Your browser does not support the audio element.
                             </audio>
                             :
-                            <img key={this.getInitial().idElement}
-                                 src={this.getInitial().pathImage}
-                                 alt={this.getInitial().name} className="img-thumbnail"/>
+                            <img key={this.props.data.initial.id}
+                                 src={this.props.data.initial.path}
+                                 alt={this.props.data.initial.name} className="img-thumbnail"/>
                         }
-                    </div> : ''
-                }
-                {this.state.current_type === "selection" ?
-                    <div className="container">
-                        {this.props.data.possibilities.filter(p => !p.isInitial).map((possibility) => {
-                            return possibility.type === "SOUND" ?
-                                <audio key={possibility.idElement}
-                                       onClick={this.select.bind(this, possibility.idElement)}
-                                       controls>
-                                    <source src={process.env.PUBLIC_URL + "/" + possibility.pathSound}
-                                            type="audio/mpeg"/>
-                                    Your browser does not support the audio element. </audio> :
-                                <img key={possibility.idElement} onClick={this.select.bind(this, possibility.idElement)}
-                                     src={possibility.pathImage}
-                                     alt={possibility.name} className="img-thumbnail"/>
-                        })}
                         <button type="submit" className="btn btn-primary"
-                                onClick={this.finishTest.bind(this)}>Siguiente
+                                onClick={this.goToSelection.bind(this)}>Siguiente
                         </button>
                     </div> : ''
                 }
-                {this.state.current_type === "repeating" ?
+                {this.state.currentType === "selection" || this.state.currentType === "finishing" ?
                     <div className="container">
-                        <h2>Fallaste la prueba, vuelve a intentarlo</h2>
+                        <audio ref="CorrectAudio">
+                            <source src={process.env.PUBLIC_URL + "/" + this.props.correctAudio}
+                                    type="audio/mpeg"/>
+                            Your browser does not support the audio element.
+                        </audio>
+                        <audio ref="IncorrectAudio">
+                            <source src={process.env.PUBLIC_URL + "/" + this.props.incorrectAudio}
+                                    type="audio/mpeg"/>
+                            Your browser does not support the audio element.
+                        </audio>
+                        {this.props.data.possibilities.map((possibility) => {
+                            return <div key={possibility.id}> {possibility.type === "SOUND" ?
+                                <audio className={this.state.selection === possibility.id ? "selected" : ''}
+                                       key={possibility.id}
+                                       onClick={this.select.bind(this, possibility.id)}
+                                       controls>
+                                    <source src={process.env.PUBLIC_URL + "/" + possibility.path}
+                                            type="audio/mpeg"/>
+                                    Your browser does not support the audio element. </audio> :
+                                <img key={possibility.id} onClick={this.select.bind(this, possibility.id)}
+                                     src={possibility.path}
+                                     alt={possibility.name}
+                                     className={'img-thumbnail' + (this.state.selection === possibility.id ? " selected" : '')}/>}
+                            </div>
+                        })}
                         <button type="submit" className="btn btn-primary"
-                                onClick={this.repeatTest.bind(this)}>Siguiente
+                                onClick={this.finishTest.bind(this)}>Siguiente
                         </button>
                     </div> : ''
                 }

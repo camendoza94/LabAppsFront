@@ -27,18 +27,19 @@ class Phase extends Component {
             <div>
                 {this.state.current_type === "prephase" ?
                     <div className="container">
-                        <h2>{this.props.data.instructions}</h2>
+                        <p>{this.props.data.instructions}</p>
                         <audio controls>
-                            <source src={process.env.PUBLIC_URL + "/" + this.props.data.instructionsSoundPath}
+                            <source src={process.env.PUBLIC_URL + "/" + this.props.data.audioInstructions}
                                     type="audio/mpeg"/>
-                            Your browser does not support the audio element. </audio> :
+                            Your browser does not support the audio element. </audio>
                         <button type="submit" className="btn btn-primary"
                                 onClick={this.start.bind(this)}>Siguiente
                         </button>
                     </div> : ''
                 }
                 {this.state.current_type === "test" ?
-                    <Test nextTest={this.nextTest.bind(this)} data={this.props.data.tests[this.state.current_test]} key={this.state.current_test}/> : ''
+                    <Test correctAudio={this.props.correctAudio}
+                          incorrectAudio={this.props.incorrectAudio} nextTest={this.nextTest.bind(this)} data={this.props.data.tests[this.state.current_test]} key={this.state.current_test}/> : ''
                 }
             </div>
 
