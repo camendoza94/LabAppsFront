@@ -5,9 +5,8 @@ class Experiment extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            current_type: 'main',
-            current_test: '',
-            current_phase: 0
+            currentType: 'main',
+            currentPhase: 0
         }
     }
 
@@ -15,13 +14,13 @@ class Experiment extends Component {
         //TODO save group
         event.preventDefault();
         this.setState({
-            current_type: 'instructions'
+            currentType: 'instructions'
         })
     }
 
     goToPhase() {
         this.setState({
-            current_type: 'prephase'
+            currentType: 'prephase'
         })
     }
 
@@ -41,10 +40,22 @@ class Experiment extends Component {
         this.refs.IncorrectAudio.play();
     }
 
+    nextPhase() {
+        if (this.state.currentPhase + 1 < this.props.data.phases.length)
+            this.setState({
+                currentPhase: this.state.currentPhase + 1
+            });
+        else {
+            this.setState({
+                currentType: 'end'
+            });
+        }
+    }
+
     render() {
         return (
             <div className="App container">
-                {this.state.current_type === "main" ?
+                {this.state.currentType === "main" ?
                     <div>
                         <h1>{this.props.data.name}</h1>
                         <form>
@@ -68,7 +79,7 @@ class Experiment extends Component {
                         </form>
                     </div> : ''
                 }
-                {this.state.current_type === "instructions" ?
+                {this.state.currentType === "instructions" ?
                     <div>
                         <p>{this.props.data.instructions}</p>
                         <audio ref="CorrectAudio">
@@ -93,10 +104,15 @@ class Experiment extends Component {
                         <button className="btn btn-primary" onClick={this.goToPhase.bind(this)}>Siguiente</button>
                     </div> : ''
                 }
-                {this.state.current_type === "prephase" ?
-                    <Phase correctAudio={this.props.data.correctAnswerAudio}
+                {this.state.currentType === "prephase" ?
+                    <Phase key={this.state.currentPhase}
+                           correctAudio={this.props.data.correctAnswerAudio}
                            incorrectAudio={this.props.data.incorrectAnswerAudio}
-                           data={this.props.data.phases[this.state.current_phase]}/> : ''
+                           data={this.props.data.phases[this.state.currentPhase]}
+                           nextPhase={this.nextPhase.bind(this)}/> : ''
+                }
+                {this.state.currentType === "end" ?
+                    <h1>Fin del experimento</h1> : ''
                 }
             </div>
         );

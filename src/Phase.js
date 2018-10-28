@@ -17,9 +17,13 @@ class Phase extends Component {
     }
 
     nextTest() {
-        this.setState({
-            current_test: this.state.current_test + 1
-        })
+        if (this.state.current_test + 1 < this.props.data.tests.length)
+            this.setState({
+                current_test: this.state.current_test + 1
+            });
+        else {
+            this.props.nextPhase();
+        }
     }
 
     render() {
@@ -31,7 +35,8 @@ class Phase extends Component {
                         <audio controls>
                             <source src={process.env.PUBLIC_URL + "/" + this.props.data.audioInstructions}
                                     type="audio/mpeg"/>
-                            Your browser does not support the audio element. </audio>
+                            Your browser does not support the audio element.
+                        </audio>
                         <button type="submit" className="btn btn-primary"
                                 onClick={this.start.bind(this)}>Siguiente
                         </button>
@@ -39,7 +44,8 @@ class Phase extends Component {
                 }
                 {this.state.current_type === "test" ?
                     <Test correctAudio={this.props.correctAudio}
-                          incorrectAudio={this.props.incorrectAudio} nextTest={this.nextTest.bind(this)} data={this.props.data.tests[this.state.current_test]} key={this.state.current_test}/> : ''
+                          incorrectAudio={this.props.incorrectAudio} nextTest={this.nextTest.bind(this)}
+                          data={this.props.data.tests[this.state.current_test]} key={this.state.current_test}/> : ''
                 }
             </div>
 

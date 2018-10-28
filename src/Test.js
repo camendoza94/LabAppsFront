@@ -30,10 +30,21 @@ class Test extends Component {
         this.props.nextTest();
     }
 
+    async modal() {
+        await this.sleep(2000);
+        this.setState({
+            modal: false
+        });
+    }
+
     async finishTest() {
         //TODO Save selection
-        if (this.state.selection === -1)
-            this.refs.Modal.modal('show');
+        if (this.state.selection === -1) {
+            this.setState({
+                modal: true
+            }, this.modal);
+            return
+        }
         if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer)[0].id)
             this.playCorrectSound();
         else
@@ -101,6 +112,11 @@ class Test extends Component {
                         <button type="submit" className="btn btn-primary"
                                 onClick={this.finishTest.bind(this)}>Siguiente
                         </button>
+                        {this.state.modal ?
+                            <div className="alert alert-danger" role="alert">
+                               Selecciona una respuesta antes de continuar.
+                            </div> : ''
+                        }
                     </div> : ''
                 }
             </div>
