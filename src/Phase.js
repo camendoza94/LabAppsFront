@@ -9,7 +9,8 @@ class Phase extends Component {
             current_test: 0,
             hits: 0,
             repeat: false,
-            data: []
+            data: [],
+            block: 1
         }
     }
 
@@ -19,13 +20,17 @@ class Phase extends Component {
         })
     }
 
-    nextTest(correct, timer) {
+    nextTest(correct, timer, answer) {
         this.setState({
             data: [...this.state.data, {
-                "phaseId": this.props.data.id,
-                "testId": this.state.current_test,
-                "correct": correct,
-                "time": timer
+                "phase": this.props.data.idPhase + 1,
+                "block": this.state.block,
+                "test_number": this.state.current_test + 1,
+                "test_type": this.props.data.tests[this.state.current_test].name,
+                "test": this.props.data.tests[this.state.current_test].initial.name + ";" + this.props.data.tests[this.state.current_test].possibilities.filter(p => p.isAnswer)[0].name,
+                "givenAnswer": this.props.data.tests[this.state.current_test].possibilities.filter(p => p.idElement === answer)[0].name,
+                "hit": correct ? 1 : 0,
+                "reactionTime": timer
             }]
         });
         if (correct)

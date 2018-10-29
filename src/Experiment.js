@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Phase from "./Phase";
+import axios from 'axios';
 
 class Experiment extends Component {
     constructor(props) {
@@ -42,12 +43,6 @@ class Experiment extends Component {
         this.refs.IncorrectAudio.play();
     }
 
-    checkIfRepeat(hits) {
-        //TODO Save answers
-
-
-    }
-
     nextPhase(hits, data) {
         this.setState({
             data: this.state.data.concat(...data)
@@ -69,12 +64,24 @@ class Experiment extends Component {
                 });
             }
             else {
+                this.sendAnswers();
                 this.setState({
                     currentType: 'end'
                 });
             }
         }
+    }
 
+    sendAnswers() {
+        this.state.data.map(answer => axios.post('http://localhost:8090/api/catalogo/answer', answer)
+            .then((response) => {
+                this.setState({
+                    data: response.data
+                })
+            })
+            .catch(function (error) {
+                console.log(error)
+            }))
     }
 
     render() {
@@ -84,12 +91,12 @@ class Experiment extends Component {
                     <div>
                         <h1>{this.props.data.name}</h1>
                         <form>
-                            {this.props.data.subjects.map((attribute) => {
+                            {Object.keys(this.props.data.grupos[0].subjects[0]).map((attribute) => {
                                 return <div className="form-group row">
-                                    <label htmlFor={attribute.name}
-                                           className="col-sm-2 col-form-label">{attribute.name}</label>
+                                    <label htmlFor={attribute}
+                                           className="col-sm-2 col-form-label">{attribute}</label>
                                     <div className="col-sm-10">
-                                        <input className="form-control form-control-lg" id={attribute.name}/>
+                                        <input className="form-control form-control-lg" id={attribute}/>
                                     </div>
                                 </div>
                             })}
@@ -97,7 +104,7 @@ class Experiment extends Component {
                                 <label htmlFor="group" className="col-sm-2 col-form-label">Grupo</label>
                                 <div className="col-sm-10">
                                     <select className="form-control form-control-lg" id="group">
-                                        {this.props.data.groups.map((group) => {
+                                        {this.props.data.grupos.map((group) => {
                                             return <option key={group.name}>{group.name}</option>
                                         })}
                                     </select>
