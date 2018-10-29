@@ -6,7 +6,9 @@ class Experiment extends Component {
         super(props);
         this.state = {
             currentType: 'main',
-            currentPhase: 0
+            currentPhase: 0,
+            repeat: false,
+            data: []
         }
     }
 
@@ -40,16 +42,39 @@ class Experiment extends Component {
         this.refs.IncorrectAudio.play();
     }
 
-    nextPhase() {
-        if (this.state.currentPhase + 1 < this.props.data.phases.length)
-            this.setState({
-                currentPhase: this.state.currentPhase + 1
-            });
-        else {
-            this.setState({
-                currentType: 'end'
-            });
+    checkIfRepeat(hits) {
+        //TODO Save answers
+
+
+    }
+
+    nextPhase(hits, data) {
+        this.setState({
+            data: this.state.data.concat(...data)
+        });
+        if (hits < this.props.data.phases[this.state.currentPhase].hits) {
+            if (this.props.data.phases[this.state.currentPhase].isRepeatable)
+                this.setState({
+                    repeat: !this.state.repeat,
+                });
+            else if (this.props.data.phases[this.state.currentPhase].previousPhaseOnError) {
+                this.setState({
+                    currentPhase: this.state.currentPhase - 1
+                });
+            }
+        } else {
+            if (this.state.currentPhase + 1 < this.props.data.phases.length) {
+                this.setState({
+                    currentPhase: this.state.currentPhase + 1
+                });
+            }
+            else {
+                this.setState({
+                    currentType: 'end'
+                });
+            }
         }
+
     }
 
     render() {
@@ -59,10 +84,19 @@ class Experiment extends Component {
                     <div>
                         <h1>{this.props.data.name}</h1>
                         <form>
+                            {this.props.data.subjects.map((attribute) => {
+                                return <div className="form-group row">
+                                    <label htmlFor={attribute.name}
+                                           className="col-sm-2 col-form-label">{attribute.name}</label>
+                                    <div className="col-sm-10">
+                                        <input className="form-control form-control-lg" id={attribute.name}/>
+                                    </div>
+                                </div>
+                            })}
                             <div className="form-group row">
                                 <label htmlFor="group" className="col-sm-2 col-form-label">Grupo</label>
                                 <div className="col-sm-10">
-                                    <select className="form-control form-control-lg">
+                                    <select className="form-control form-control-lg" id="group">
                                         {this.props.data.groups.map((group) => {
                                             return <option key={group.name}>{group.name}</option>
                                         })}
@@ -109,7 +143,9 @@ class Experiment extends Component {
                            correctAudio={this.props.data.correctAnswerAudio}
                            incorrectAudio={this.props.data.incorrectAnswerAudio}
                            data={this.props.data.phases[this.state.currentPhase]}
-                           nextPhase={this.nextPhase.bind(this)}/> : ''
+                           nextPhase={this.nextPhase.bind(this)}
+                           repeat={this.state.repeat}
+                    /> : ''
                 }
                 {this.state.currentType === "end" ?
                     <h1>Fin del experimento</h1> : ''

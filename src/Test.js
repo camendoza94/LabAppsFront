@@ -12,7 +12,16 @@ class Test extends Component {
     goToSelection() {
         this.setState({
             currentType: 'selection'
-        })
+        });
+        this.startTimer();
+    }
+
+    startTimer() {
+        this.mountTime = new Date().getTime()
+    }
+
+    stopTimer() {
+        this.timer = new Date().getTime() - this.mountTime;
     }
 
     select(id) {
@@ -27,7 +36,7 @@ class Test extends Component {
     }
 
     nextTest() {
-        this.props.nextTest();
+        this.props.nextTest(this.state.correct, this.timer);
     }
 
     async modal() {
@@ -45,10 +54,19 @@ class Test extends Component {
             }, this.modal);
             return
         }
-        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer)[0].id)
+        this.stopTimer();
+        if (this.state.selection === this.props.data.possibilities.filter(p => p.isAnswer)[0].id) {
+            this.setState({
+                correct: true
+            });
             this.playCorrectSound();
-        else
+        }
+        else {
+            this.setState({
+                correct: false
+            });
             this.playIncorrectSound();
+        }
         await this.sleep(1200);
         this.nextTest();
     }
@@ -60,6 +78,17 @@ class Test extends Component {
     playIncorrectSound() {
         this.refs.IncorrectAudio.play();
     }
+
+    componentWillReceiveProps(props) {
+        const {repeat} = this.props;
+        if (props.repeat !== repeat) {
+            this.setState({
+                currentType: "initial",
+                selection: -1,
+            });
+        }
+    }
+
 
     render() {
         return (
@@ -114,7 +143,7 @@ class Test extends Component {
                         </button>
                         {this.state.modal ?
                             <div className="alert alert-danger" role="alert">
-                               Selecciona una respuesta antes de continuar.
+                                Selecciona una respuesta antes de continuar.
                             </div> : ''
                         }
                     </div> : ''

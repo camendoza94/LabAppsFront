@@ -6,7 +6,10 @@ class Phase extends Component {
         super(props);
         this.state = {
             current_type: 'prephase',
-            current_test: 0
+            current_test: 0,
+            hits: 0,
+            repeat: false,
+            data: []
         }
     }
 
@@ -16,13 +19,38 @@ class Phase extends Component {
         })
     }
 
-    nextTest() {
+    nextTest(correct, timer) {
+        this.setState({
+            data: [...this.state.data, {
+                "phaseId": this.props.data.id,
+                "testId": this.state.current_test,
+                "correct": correct,
+                "time": timer
+            }]
+        });
+        if (correct)
+            this.setState({
+                hits: this.state.hits + 1
+            });
         if (this.state.current_test + 1 < this.props.data.tests.length)
             this.setState({
                 current_test: this.state.current_test + 1
             });
         else {
-            this.props.nextPhase();
+            this.props.nextPhase(this.state.hits, this.state.data);
+        }
+    }
+
+    componentWillReceiveProps(props) {
+        const {repeat} = this.props;
+        if (props.repeat !== repeat) {
+            this.setState({
+                repeat: !repeat,
+                current_type: 'test',
+                current_test: 0,
+                hits: 0,
+                data: []
+            });
         }
     }
 
@@ -45,7 +73,9 @@ class Phase extends Component {
                 {this.state.current_type === "test" ?
                     <Test correctAudio={this.props.correctAudio}
                           incorrectAudio={this.props.incorrectAudio} nextTest={this.nextTest.bind(this)}
-                          data={this.props.data.tests[this.state.current_test]} key={this.state.current_test}/> : ''
+                          data={this.props.data.tests[this.state.current_test]} key={this.state.current_test}
+                          repeat={this.state.repeat}
+                    /> : ''
                 }
             </div>
 
